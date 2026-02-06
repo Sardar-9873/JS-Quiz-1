@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JavaScript Quiz (40 Questions)</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .quiz-box {
+        background: #fff;
+        width: 500px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        margin-bottom: 10px;
+    }
+
+    .question {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .options label {
+        display: block;
+        padding: 8px;
+        margin-bottom: 8px;
+        background: #f1f1f1;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .options input {
+        margin-right: 8px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    .score {
+        font-size: 20px;
+        text-align: center;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="quiz-box">
+    <h2>JavaScript Quiz</h2>
+    <div id="quiz">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <button onclick="nextQuestion()">Next</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // Alerts
+    {q:"Which function shows a popup message?", o:["prompt()","alert()","console.log()","msg()"], a:1},
+    {q:"Alert is mainly used for?", o:["Input","Output","Warning","Loop"], a:2},
+
+    // Variables (Strings & Numbers)
+    {q:"Which is a string?", o:["123","true","\"Ali\"","10"], a:2},
+    {q:"Which keyword declares a variable?", o:["make","var","define","letit"], a:1},
+
+    // Variable names
+    {q:"Which variable name is illegal?", o:["user1","_name","$price","1user"], a:3},
+    {q:"Variable names can contain?", o:["Spaces","Hyphens","Numbers","Quotes"], a:2},
+
+    // Math expressions
+    {q:"10 + 5 * 2 = ?", o:["30","20","25","15"], a:1},
+    {q:"Which operator is for modulus?", o:["/","%","*","+"], a:1},
+
+    // Eliminating ambiguity
+    {q:"How to force precedence?", o:["Quotes","Brackets","Curly braces","Colon"], a:1},
+    {q:"(10 + 5) * 2 = ?", o:["20","25","30","15"], a:2},
+
+    // Concatenation
+    {q:"\"Hello\" + \"World\" = ?", o:["HelloWorld","Hello World","Error","Hello+World"], a:0},
+    {q:"Which operator joins strings?", o:["-","*","+","/"], a:2},
+
+    // Prompts
+    {q:"Prompt is used for?", o:["Output","Input","Loop","Alert"], a:1},
+    {q:"Prompt returns data as?", o:["Number","Boolean","String","Object"], a:2},
+
+    // if statements
+    {q:"Which keyword is used for condition?", o:["for","if","while","switch"], a:1},
+    {q:"if condition must be?", o:["True","False","Boolean","Number"], a:2},
+
+    // Comparison operators
+    {q:"Which means equal value & type?", o:["==","=","===","!="], a:2},
+    {q:"Which means NOT equal?", o:["==","!=","<=",">="], a:1},
+
+    // if else
+    {q:"else runs when?", o:["if true","if false","always","never"], a:1},
+    {q:"else if is used for?", o:["Loop","Multiple conditions","Arrays","Functions"], a:1},
+
+    // Sets of conditions
+    {q:"AND operator is?", o:["||","&&","!","=="], a:1},
+    {q:"OR operator is?", o:["||","&&","!","==="], a:0},
+
+    // Nested if
+    {q:"Nested if means?", o:["if inside if","loop inside if","array inside if","function"], a:0},
+    {q:"Nested if is used for?", o:["Multiple checks","Looping","Arrays","Strings"], a:0},
+
+    // Arrays
+    {q:"Correct array syntax?", o:["(1,2,3)","{1,2,3}","[1,2,3]","<1,2,3>"], a:2},
+    {q:"Array index starts from?", o:["1","-1","0","2"], a:2},
+
+    // Add/remove array
+    {q:"Which adds at end?", o:["pop","push","shift","splice"], a:1},
+    {q:"Which removes last?", o:["push","shift","pop","unshift"], a:2},
+
+    // Splice / slice
+    {q:"splice() is used to?", o:["Copy","Remove/Add","Sort","Join"], a:1},
+    {q:"slice() does what?", o:["Change array","Extract part","Delete","Add"], a:1},
+
+    // for loops
+    {q:"for loop is used for?", o:["Condition","Repetition","Input","Alert"], a:1},
+    {q:"for loop has how many parts?", o:["2","3","4","5"], a:1},
+
+    // Loop flags & break
+    {q:"break does what?", o:["Skip","Stop loop","Restart","Pause"], a:1},
+    {q:"Boolean values are?", o:["Yes/No","1/0","true/false","on/off"], a:2},
+
+    // Nested loops
+    {q:"Nested loop means?", o:["Loop in function","Loop in loop","Loop in array","Loop in if"], a:1},
+    {q:"Used mostly for?", o:["Patterns","Alerts","Prompts","Variables"], a:0}
+];
+
+let index = 0;
+let score = 0;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const quizEl = document.getElementById("quiz");
+
+function loadQuestion() {
+    const current = quizData[index];
+    questionEl.innerText = (index+1) + ". " + current.q;
+    optionsEl.innerHTML = "";
+
+    current.o.forEach((opt, i) => {
+        optionsEl.innerHTML += `
+            <label>
+                <input type="radio" name="option" value="${i}">
+                ${opt}
+            </label>
+        `;
+    });
+}
+
+function nextQuestion() {
+    const selected = document.querySelector('input[name="option"]:checked');
+    if (!selected) return alert("Please select an option!");
+
+    if (parseInt(selected.value) === quizData[index].a) {
+        score++;
+    }
+
+    index++;
+
+    if (index < quizData.length) {
+        loadQuestion();
+    } else {
+        quizEl.innerHTML = `<div class="score">
+            🎉 Quiz Completed!<br><br>
+            Your Score: <b>${score} / ${quizData.length}</b>
+        </div>`;
+    }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
